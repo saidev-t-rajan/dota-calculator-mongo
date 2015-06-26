@@ -12,11 +12,37 @@ class Winrate
   before_create :build_all_heros, :build_all_with_heros
   before_save :set_filter
 
+  attr_reader :que
 
-  def update_from_web
-    heros.each(&:update_from_web)
+
+  def update_from_web(opts={retry: 0})
+    start_time = Time.now
+
+    heros.map{ |hero| Thread.new{hero.update_from_web} }.each(&:join)
+
+    until opts[:retry] <= 0 || que.empty? || Time.now > (start_time + 5.minutes)
+      puts "STARTING RETRY #{opts[:retry]} ================================================"
+      threads = failed_updates.map do |failed_update| 
+                  Thread.new{ heros.find_by(name_std: failed_update[:hero]).update_from_web_only(failed_update[:arg]) }
+                end
+
+      threads.each(&:join)
+      opts[:retry] -= 1
+    end
   end
 
+  def que
+    @que ||= Queue.new
+  end
+
+  def failed_updates
+    arr = []
+    until @que.empty?
+      arr << @que.shift
+    end
+
+    arr
+  end
 
   private
 
@@ -39,11 +65,7 @@ class Winrate
   end
 
   def build_all_with_heros
-    heros.each do |hero_o|
-      heros.sort_by{|h| h.name}.each do |hero|
-        hero_o.with_heros.build(hero_id: hero.id, name_std: hero.name_std, name_ch: hero.name_ch) unless hero == hero_o
-      end
-    end
+    heros.each(&:build_with_heros)
   end
 
   def build_all_heros

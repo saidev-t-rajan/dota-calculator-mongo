@@ -30,7 +30,7 @@ development:
         
         # The connection pool size per-node.  This should match or exceed the
         # number of threads for a multi-threaded application. (default: 5)
-        # pool_size: 5
+        pool_size: 10
         
         # The time in seconds that Moped should wait for the pool to provide
         # an available connection.  This number should probably remain at the 

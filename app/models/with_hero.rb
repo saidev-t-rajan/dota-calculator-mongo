@@ -1,6 +1,5 @@
 class WithHero
   include Mongoid::Document
-  include Mongoid::Timestamps
 
   embedded_in :hero
 
@@ -11,4 +10,8 @@ class WithHero
   # Cached
   field :name_std,  type: Symbol
   field :name_ch,   type: String
+
+  def h
+    hero.winrate.heros.find hero_id
+  end
 end

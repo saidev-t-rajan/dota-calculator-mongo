@@ -4,12 +4,14 @@ class Scrapers
     @start_time = Time.now
     @retry = opts[:retry] || 3
     @min = opts[:min] || 5
+    @pool = opts[:pool] || 20
 
     @winrate = winrate
     @chinese_names = @winrate.heros.pluck(:name_ch)
 
     @semaphore = Mutex.new
     @que = Queue.new
+    @failed_scrapes = Queue.new
   end
 
   def scrape_and_build!
@@ -19,29 +21,31 @@ class Scrapers
     end
 
     rtry = @retry
-    until rtry < 0 || @que.empty? || Time.now > (@start_time + 5.minutes)
+    until (rtry < 0 || @que.empty? || Time.now > (@start_time + 5.minutes))
       puts "=======================STARTING RETRY #{@retry - rtry}=======================" unless rtry == @retry
-      threads = to_scrape.map do |hero|
+      threads = @pool.times.map do
                   Thread.new do
-                    details = get_details_from_web hero[:url]
-                    if details
-                      @semaphore.synchronize do
-                        @winrate.heros.find_by(name_std: hero[:name]).build_from_web hero[:arg], details
+                    until @que.empty?
+                      hero = @que.shift
+                      details = get_details_from_web hero[:url]
+                      if details
+                        @semaphore.synchronize do
+                          @winrate.heros.find_by(name_std: hero[:name]).build_from_web hero[:arg], details
+                        end
+                      else
+                        @failed_scrapes << hero
                       end
-                    else
-                      @que << hero
                     end
                   end
                 end
 
       threads.each(&:join)
+
+      until @failed_scrapes.empty?
+        @que << @failed_scrapes.shift
+      end
       rtry -= 1
     end
-  end
-
-  def name_ch_valid!(name)
-    raise "Chinese name #{name} does not exist" unless @semaphore.synchronize{ @chinese_names.include? name }
-    name
   end
 
   def get_details_from_web(url)
@@ -63,14 +67,5 @@ class Scrapers
     puts "ERROR MESSAGE: #{e.message}"
     puts "ERROR BACKTRACE: #{e.backtrace.inspect}"
     false
-  end
-
-  def to_scrape
-    arr = []
-    until @que.empty?
-      arr << @que.shift
-    end
-
-    arr
   end
 end

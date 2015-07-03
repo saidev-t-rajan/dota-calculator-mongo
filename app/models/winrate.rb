@@ -12,12 +12,8 @@ class Winrate
   before_create :set_filter, :build_all_heros, :build_all_with_heros
 
   def update_from_web(opts={})
-    if opts[:async] == false
-      heros.map(&:update_from_web)
-    else
-      scrapers = Scrapers.new(self, opts)
-      scrapers.scrape_and_build!
-    end
+    scrapers = Scrapers.new(self, opts)
+    scrapers.scrape_and_build!
 
     save
   end

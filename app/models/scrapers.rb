@@ -18,8 +18,8 @@ class Scrapers
 
   def scrape_and_build!
     @winrate.heros.each do |hero| 
-      @que << { name: hero.name_std, arg: :combo, url: hero.url_combo }
-      @que << { name: hero.name_std, arg: :anti, url: hero.url_anti }
+      @que << { name: hero._id, arg: :combo, url: hero.url_combo }
+      @que << { name: hero._id, arg: :anti, url: hero.url_anti }
     end
 
     rtry = @retry
@@ -32,7 +32,7 @@ class Scrapers
                       details = get_details_from_web hero[:url]
                       if details
                         @semaphore.synchronize do
-                          @winrate.heros.find_by(name_std: hero[:name]).build_from_web hero[:arg], details
+                          @winrate.heros.find(hero[:name]).build_from_web hero[:arg], details
                         end
                       else
                         @failed_scrapes << hero

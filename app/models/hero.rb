@@ -8,8 +8,8 @@ class Hero
   embedded_in :winrate
   embeds_many :with_heros
 
+  field :_id,         type: Symbol
   field :name,        type: String
-  field :name_std,    type: Symbol
   field :name_ch,     type: String
   field :name_url,    type: String
   field :url_anti,    type: String
@@ -41,7 +41,7 @@ class Hero
 
   def build_with_heros
     winrate.heros.sort_by{|h| h.name}.each do |hero|
-      with_heros.build(_id: hero.name_std, name_ch: hero.name_ch) unless hero == self
+      with_heros.build(_id: hero._id, name_ch: hero.name_ch) unless hero == self
     end
   end
 

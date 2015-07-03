@@ -179,7 +179,7 @@ class Winrate
     heros_hash.sort.to_h.each do |english, chinese|
       name_standard = english.strip.downcase.tr(' ', '_').tr('-', '').tr("'", '')
       name_url =  weird_heros_hash[english] || name_standard
-      heros.build(name: english.strip, name_std: name_standard.to_sym, name_ch: chinese.strip, name_url: name_url).set_urls
+      heros.build(_id: name_standard.to_sym, name: english.strip, name_ch: chinese.strip, name_url: name_url).set_urls
     end
   end
 end

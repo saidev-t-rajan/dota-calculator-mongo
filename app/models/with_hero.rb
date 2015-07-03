@@ -11,6 +11,6 @@ class WithHero
   field :name_ch,   type: String
 
   def h
-    hero.winrate.heros.find_by(name_std: _id)
+    hero.winrate.heros.find(_id)
   end
 end

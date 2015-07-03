@@ -13,9 +13,13 @@ class Winrate
 
   def update_from_web(opts={})
     scrapers = Scrapers.new(self, opts)
-    scrapers.scrape_and_build!
 
-    save
+    if scrapers.scrape_and_build!
+      save
+    else
+      puts scrapers.errors
+      false
+    end
   end
 
   private

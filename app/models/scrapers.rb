@@ -1,4 +1,5 @@
 class Scrapers
+  attr_reader :errors
 
   def initialize(winrate, opts={})
     @start_time = Time.now
@@ -12,6 +13,7 @@ class Scrapers
     @semaphore = Mutex.new
     @que = Queue.new
     @failed_scrapes = Queue.new
+    @errors = []
   end
 
   def scrape_and_build!
@@ -21,7 +23,7 @@ class Scrapers
     end
 
     rtry = @retry
-    until (rtry < 0 || @que.empty? || Time.now > (@start_time + 5.minutes))
+    until (rtry < 0 || @que.empty? || Time.now > (@start_time + @min.minutes))
       puts "=======================STARTING RETRY #{@retry - rtry}=======================" unless rtry == @retry
       threads = @pool.times.map do
                   Thread.new do
@@ -46,6 +48,12 @@ class Scrapers
       end
       rtry -= 1
     end
+
+    return true if @que.empty?
+
+    @errors << "Time Exeeded #{@min} minutes" if Time.now > (@start_time + 5.minutes)
+    @errors << "Retry Exeeded #{@retry} times" if rtry < 0
+    false
   end
 
   def get_details_from_web(url)
@@ -64,7 +72,7 @@ class Scrapers
     end
 
   rescue Exception => e
-    puts "ERROR MESSAGE: #{e.message}"
+    puts "ERROR for #{url}: #{e.message}"
     puts "ERROR BACKTRACE: #{e.backtrace.inspect}"
     false
   end

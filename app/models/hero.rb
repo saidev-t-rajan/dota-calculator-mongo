@@ -41,7 +41,7 @@ class Hero
 
   def build_with_heros
     winrate.heros.sort_by{|h| h.name}.each do |hero|
-      with_heros.build(name: hero.name_std, name_ch: hero.name_ch) unless hero == self
+      with_heros.build(_id: hero.name_std, name_ch: hero.name_ch) unless hero == self
     end
   end
 

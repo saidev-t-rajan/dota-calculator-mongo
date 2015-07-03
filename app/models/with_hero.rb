@@ -3,15 +3,14 @@ class WithHero
 
   embedded_in :hero
 
-  field :hero_id,   type: BSON::ObjectId
-  field :combo,     type: BigDecimal
-  field :anti,      type: BigDecimal
+  field :name,  type: Symbol
+  field :combo, type: BigDecimal
+  field :anti,  type: BigDecimal
 
   # Cached
-  field :name_std,  type: Symbol
   field :name_ch,   type: String
 
   def h
-    hero.winrate.heros.find hero_id
+    hero.winrate.heros.find_by(name_std: name)
   end
 end

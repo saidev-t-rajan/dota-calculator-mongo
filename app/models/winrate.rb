@@ -9,39 +9,17 @@ class Winrate
   field :skill,   type: String
   field :filter,  type: String
 
-  before_create :build_all_heros, :build_all_with_heros
-  before_save :set_filter
+  before_create :set_filter, :build_all_heros, :build_all_with_heros
 
-  attr_reader :que
-
-
-  def update_from_web(opts={retry: 0})
-    start_time = Time.now
-
-    heros.map{ |hero| Thread.new{hero.update_from_web} }.each(&:join)
-
-    until opts[:retry] <= 0 || que.empty? || Time.now > (start_time + 5.minutes)
-      puts "STARTING RETRY #{opts[:retry]} ================================================"
-      threads = failed_updates.map do |failed_update| 
-                  Thread.new{ heros.find_by(name_std: failed_update[:hero]).update_from_web_only(failed_update[:arg]) }
-                end
-
-      threads.each(&:join)
-      opts[:retry] -= 1
-    end
-  end
-
-  def que
-    @que ||= Queue.new
-  end
-
-  def failed_updates
-    arr = []
-    until @que.empty?
-      arr << @que.shift
+  def update_from_web(opts={})
+    if opts[:async] == false
+      heros.map(&:update_from_web)
+    else
+      scrapers = Scrapers.new(self, opts)
+      scrapers.scrape_and_build!
     end
 
-    arr
+    save
   end
 
   private
@@ -55,9 +33,9 @@ class Winrate
     conditions << "skill=#{skill}"  if skill
 
     if conditions.any?
-      filter = filter + "?#{conditions.shift}"
+      filter = "#{filter}?#{conditions.shift}"
       conditions.each do |condition|
-        filter = filter + "&#{condition}"
+        filter = "#{filter}&#{condition}"
       end
     end
 
@@ -201,7 +179,7 @@ class Winrate
     heros_hash.sort.to_h.each do |english, chinese|
       name_standard = english.strip.downcase.tr(' ', '_').tr('-', '').tr("'", '')
       name_url =  weird_heros_hash[english] || name_standard
-      heros.build(name: english.strip, name_std: name_standard.to_sym, name_ch: chinese.strip, name_url: name_url)
+      heros.build(name: english.strip, name_std: name_standard.to_sym, name_ch: chinese.strip, name_url: name_url).set_urls
     end
   end
 end

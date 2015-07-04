@@ -23,30 +23,19 @@ class Hero
 
   def build_from_web(arg, details)
     details.each do |name_ch, rate|
-      with_heros.find_by(name_ch: name_ch).send(arg.to_s + '=', rate.to_d)
+      with_heros.find_by(name_ch: name_ch).send(arg << '=', rate.to_d)
     end
-    send(arg.to_s + '_u_at=', Time.now)
-  end
-
-  def url(arg)
-    u = case arg
-        when :combo
-          "#{DOTAMAXURL}/match_up_comb/"
-        when :anti
-          "#{DOTAMAXURL}/match_up_anti/"
-        end
-
-    u << name_url << winrate.filter
-  end
-
-  def build_with_heros
-    winrate.heros.sort_by{|h| h.name}.each do |hero|
-      with_heros.build(_id: hero._id, name_ch: hero.name_ch) unless hero == self
-    end
+    send(arg << '_u_at=', Time.now)
   end
 
   def set_urls
-    self.url_combo = url :combo
-    self.url_anti = url :anti
+    self.url_combo  = DOTAMAXURL << "/match_up_comb/" << name_url << winrate.filter
+    self.url_anti   = DOTAMAXURL << "/match_up_anti/" << name_url << winrate.filter
+  end
+
+  def build_with_heros
+    winrate.heros.each do |hero|
+      with_heros.build(_id: hero._id, name_ch: hero.name_ch) unless hero == self
+    end
   end
 end

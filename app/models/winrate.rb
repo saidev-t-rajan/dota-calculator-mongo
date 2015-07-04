@@ -4,12 +4,15 @@ class Winrate
 
   embeds_many :heros
 
+  field :_id,     type: String, default: ->{ get_id }
   field :type,    type: String
   field :time,    type: String
   field :skill,   type: String
-  field :filter,  type: String
+  field :filter,  type: String, default: ->{ get_filter }
 
-  before_create :set_filter, :build_all_heros, :build_all_with_heros
+  validates_uniqueness_of :_id
+
+  before_create :build_all_heros, :build_all_with_heros
 
   def update_from_web(opts={})
     scrapers = Scrapers.new(self, opts)
@@ -24,7 +27,23 @@ class Winrate
 
   private
 
-  def set_filter
+  def get_id
+    id = ''
+
+    conditions = []
+    conditions << type  if type
+    conditions << time  if time
+    conditions << skill if skill
+
+    if conditions.any?
+      id << conditions.shift
+      conditions.each{|c| id << '-' << c}
+    end
+
+    id
+  end
+
+  def get_filter
     filter = '/'
 
     conditions = []
@@ -33,13 +52,11 @@ class Winrate
     conditions << "skill=#{skill}"  if skill
 
     if conditions.any?
-      filter = "#{filter}?#{conditions.shift}"
-      conditions.each do |condition|
-        filter = "#{filter}&#{condition}"
-      end
+      filter << '?' << conditions.shift
+      conditions.each{|c| filter << '&' << c}
     end
 
-    self.filter = filter
+    filter
   end
 
   def build_all_with_heros
@@ -176,7 +193,7 @@ class Winrate
                         "Outworld Devourer"=>"obsidian_destroyer"}
 
 
-    heros_hash.sort.to_h.each do |english, chinese|
+    heros_hash.sort.each do |english, chinese|
       name_standard = english.strip.downcase.tr(' ', '_').tr('-', '').tr("'", '')
       name_url =  weird_heros_hash[english] || name_standard
       heros.build(_id: name_standard.to_sym, name: english.strip, name_ch: chinese.strip, name_url: name_url).set_urls

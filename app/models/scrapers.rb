@@ -18,8 +18,8 @@ class Scrapers
 
   def scrape_and_build!
     @winrate.heros.each do |hero| 
-      @que << { name: hero._id, arg: :combo, url: hero.url_combo }
-      @que << { name: hero._id, arg: :anti, url: hero.url_anti }
+      @que << { name: hero._id, arg: 'combo', url: hero.url_combo }
+      @que << { name: hero._id, arg: 'anti', url: hero.url_anti }
     end
 
     rtry = @retry
@@ -58,17 +58,12 @@ class Scrapers
 
   def get_details_from_web(url)
     puts "URL: #{url}"
-    page = Nokogiri::HTML(open(url))
 
-    page.css("//table.table//tbody//tr").inject({}) do |attributes, row|
+    Nokogiri::HTML(open(url)).css("//table.table//tbody//tr").map do |row|
       name_ch = row.css("td")[0].text
       raise "Chinese name #{name_ch} does not exist" unless @semaphore.synchronize{ @chinese_names.include? name_ch }
 
-      win_rate = row.css("td")[2].text
-
-      attributes[name_ch] = win_rate
-      
-      attributes
+      [name_ch, row.css("td")[2].text]
     end
 
   rescue Exception => e

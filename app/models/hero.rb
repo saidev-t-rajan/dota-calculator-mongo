@@ -8,7 +8,7 @@ class Hero
   embedded_in :winrate
   embeds_many :with_heros
 
-  field :_id,         type: Symbol
+  field :_id,         type: Symbol, overwrite: true
   field :name,        type: String
   field :name_ch,     type: String
   field :name_url,    type: String
@@ -23,14 +23,14 @@ class Hero
 
   def build_from_web(arg, details)
     details.each do |name_ch, rate|
-      with_heros.find_by(name_ch: name_ch).send(arg << '=', rate.to_d)
+      with_heros.find_by(name_ch: name_ch).send("#{arg}=", rate.to_d)
     end
-    send(arg << '_u_at=', Time.now)
+    send("#{arg}_u_at=", Time.now)
   end
 
   def set_urls
-    self.url_combo  = DOTAMAXURL << "/match_up_comb/" << name_url << winrate.filter
-    self.url_anti   = DOTAMAXURL << "/match_up_anti/" << name_url << winrate.filter
+    self.url_combo  = "#{DOTAMAXURL}/match_up_comb/#{name_url}#{winrate.filter}"
+    self.url_anti   = "#{DOTAMAXURL}/match_up_anti/#{name_url}#{winrate.filter}"
   end
 
   def build_with_heros

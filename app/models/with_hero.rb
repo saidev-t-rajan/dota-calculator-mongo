@@ -3,7 +3,7 @@ class WithHero
 
   embedded_in :hero
 
-  field :_id,       type: Symbol
+  field :_id,       type: Symbol, overwrite: true
   field :combo,     type: BigDecimal
   field :anti,      type: BigDecimal
 

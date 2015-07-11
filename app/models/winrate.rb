@@ -4,7 +4,7 @@ class Winrate
 
   embeds_many :heros
 
-  field :_id,     type: String, default: ->{ get_id }
+  field :_id,     type: String, overwrite: true, default: ->{ get_id }
   field :type,    type: String
   field :time,    type: String
   field :skill,   type: String
@@ -25,19 +25,17 @@ class Winrate
     end
   end
 
-  private
-
   def get_id
-    id = ''
-
     conditions = []
-    conditions << type  if type
-    conditions << time  if time
-    conditions << skill if skill
+    conditions << "#{type}"  if type.present?
+    conditions << "#{time}"  if time.present?
+    conditions << "#{skill}" if skill.present?
 
     if conditions.any?
-      id << conditions.shift
+      id = conditions.shift
       conditions.each{|c| id << '-' << c}
+    else
+      id = 'no-filter'
     end
 
     id
@@ -47,9 +45,9 @@ class Winrate
     filter = '/'
 
     conditions = []
-    conditions << "ladder=#{type}"  if type
-    conditions << "time=#{time}"    if time
-    conditions << "skill=#{skill}"  if skill
+    conditions << "ladder=#{type}"  if type.present?
+    conditions << "time=#{time}"    if time.present?
+    conditions << "skill=#{skill}"  if skill.present?
 
     if conditions.any?
       filter << '?' << conditions.shift
@@ -58,6 +56,34 @@ class Winrate
 
     filter
   end
+
+  def last_updated
+    return 'Never Updated' if updated_at == created_at
+    updated_at.to_formatted_s(:short)
+  end
+
+  # def top_combo(num=2, list=100)
+  #   exclude = [:omniknight, :undying]
+  #   top = Array.new(list, [nil, 0])
+
+  #   heros.each do |hero|
+  #     hero.with_heros.each do |with_hero|
+  #       with_hero.h.with_heros.each do |wh|
+  #         hs = [hero._id, with_hero._id, wh._id]
+  #         unless (wh._id == hero._id || top.map(&:first).include?(hs.sort))
+  #           v = with_hero.combo + wh.combo + hero.with_heros.find(wh._id).combo
+  #           if v > top.first[1] # || exclude.include?(hero._id) || exclude.include?(with_hero._id)
+  #             top.shift
+  #             top.unshift([[hero._id, with_hero._id, wh._id].sort, v])
+  #             top.sort_by!{|combo| combo[1]}
+  #           end
+  #         end
+  #       end
+  #     end
+  #   end
+
+  #   puts top.reverse!.map{|hs, v| "#{hs} => #{v.to_s}"}
+  # end
 
   def build_all_with_heros
     heros.each(&:build_with_heros)

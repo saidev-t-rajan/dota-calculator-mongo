@@ -1,0 +1,23 @@
+<div class="col-md-4">
+  <h1>New Winrate</h1>
+  <%= simple_form_for @winrate do |f| %>
+    <% if @winrate.errors.any? %>
+      <% errors = @winrate.errors.full_messages %>
+      <% idx = errors.index { |e| e == "Id is already taken" } %>
+      <% errors[idx] = 'Winrate already exits' if idx %>
+      <div id="error_explanation" class="has-error">
+        <ul>
+          <% errors.each do |msg| %>
+            <div class="control-label"><li><%= msg %></li></div>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <%= f.input :type %>
+    <%= f.input :time %>
+    <%= f.input :skill %>
+    <%= f.button :submit, class: "btn-primary" %>
+  <% end %>
+  <br>
+  <p><%= link_to 'Cancel', winrates_path %></p>
+</div>

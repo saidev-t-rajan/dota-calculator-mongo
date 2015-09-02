@@ -19,8 +19,8 @@
         <td><%= winrate.skill %></td>
         <td><%= winrate.last_updated %></td>
         <td><%= link_to truncate(winrate.heros.first.url_combo, length: 50), winrate.heros.first.url_combo %></td>
-        <td><span class="glyphicon glyphicon-download" aria-hidden="true"></span></td>
-        <td><span class="glyphicon glyphicon-download" aria-hidden="true"></span></td>
+        <td><%= link_to '<span class="glyphicon glyphicon-download" aria-hidden="true"></span>'.html_safe, combo_csv_winrate_path(format: "csv", id: winrate._id) %></td>
+        <td><%= link_to '<span class="glyphicon glyphicon-download" aria-hidden="true"></span>'.html_safe, anti_csv_winrate_path(format: "csv", id: winrate._id) %></td>
         <td><%= link_to 'Destroy', winrate, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>

@@ -1,0 +1,23 @@
+<div class="col-md-4">
+  <%= simple_form_for :draft, url: calculator_calculate_path do |f| %>
+    <%= f.input :winrate, label: false, collection: Winrate.pluck(:_id), include_blank: false, selected: @winrate %>
+    <h4>Radiant</h4>
+    <%= f.input :radiant_1, label: false, collection: @heros, include_blank: true, selected: @radiant_1 %>
+    <%= f.input :radiant_2, label: false, collection: @heros, include_blank: true, selected: @radiant_2 %>
+    <%= f.input :radiant_3, label: false, collection: @heros, include_blank: true, selected: @radiant_3 %>
+    <%= f.input :radiant_4, label: false, collection: @heros, include_blank: true, selected: @radiant_4 %>
+    <%= f.input :radiant_5, label: false, collection: @heros, include_blank: true, selected: @radiant_5 %>
+    <h4>Dire</h4>
+    <%= f.input :dire_1, label: false, collection: @heros, include_blank: true, selected: @dire_1 %>
+    <%= f.input :dire_2, label: false, collection: @heros, include_blank: true, selected: @dire_2 %>
+    <%= f.input :dire_3, label: false, collection: @heros, include_blank: true, selected: @dire_3 %>
+    <%= f.input :dire_4, label: false, collection: @heros, include_blank: true, selected: @dire_4 %>
+    <%= f.input :dire_5, label: false, collection: @heros, include_blank: true, selected: @dire_5 %>
+    <%= f.button :submit, "Calculate", class: "btn-primary" %>
+  <% end %>
+  <br>
+  <% if @radiant_win_percentage %>
+    <h4><b>Radiant Win Percentage:</b> <%= @radiant_win_percentage %></h4>
+    <h4><b>Dire Win Percentage:</b> <%= @dire_win_percentage %></h4>
+  <% end %>
+</div>

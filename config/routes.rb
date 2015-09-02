@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  # root 'welcome#index'
+  root 'calculator#index'
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
@@ -54,5 +54,13 @@ Rails.application.routes.draw do
   #     resources :products
   #   end
 
-  resources :winrates, except: [:edit, :update, :show]
+  resources :winrates, only: [:index, :new, :create, :destroy] do
+    member do
+      get :combo_csv
+      get :anti_csv
+    end
+  end
+
+  resources :calculator, only: [:index]
+  post 'calculator/calculate', to: 'calculator#calculate'
 end

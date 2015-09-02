@@ -17,9 +17,18 @@ class Hero
   field :combo_u_at,  type: ActiveSupport::TimeWithZone
   field :anti_u_at,   type: ActiveSupport::TimeWithZone
 
+  index(name: 1)
+
 
   DOTAMAXURL = "http://dotamax.com/hero/detail"
 
+  def combo(hero)
+    with_heros.where(_id: hero._id).first.try(:combo)
+  end
+
+  def anti(hero)
+    with_heros.where(_id: hero._id).first.try(:anti)
+  end
 
   def build_from_web(arg, details)
     details.each do |name_ch, rate|

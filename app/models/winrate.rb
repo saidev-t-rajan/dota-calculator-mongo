@@ -1,3 +1,6 @@
+require 'csv'
+
+
 class Winrate
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -60,6 +63,15 @@ class Winrate
   def last_updated
     return 'Never Updated' if updated_at == created_at
     updated_at.to_formatted_s(:short)
+  end
+
+  def as_csv(arg)
+    CSV.generate do |csv|
+      csv << ([nil] + heros.pluck(:name) << "Updated At")
+      heros.each_with_index do |hero, idx|
+        csv << ([hero.name] + hero.with_heros.pluck(arg).insert(idx, nil) << hero["#{arg}_u_at"])
+      end
+    end
   end
 
   # def top_combo(num=2, list=100)

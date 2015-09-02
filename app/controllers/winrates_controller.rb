@@ -1,5 +1,5 @@
 class WinratesController < ApplicationController
-  before_action :set_winrate, only: [:show, :destroy]
+  before_action :set_winrate, only: [:combo_csv, :anti_csv, :destroy]
 
   def index
     @winrates = Winrate.all
@@ -20,13 +20,24 @@ class WinratesController < ApplicationController
     end
   end
 
-  def show
-  end
-
   def destroy
     @winrate.destroy
     flash[:success] = "Winrate destroyed."
     redirect_to winrates_url
+  end
+
+  def combo_csv
+    respond_to do |format|
+      format.html { redirect_to root_path }
+      format.csv { send_data @winrate.as_csv(:combo), filename: "#{@winrate._id}-combo.csv" }
+    end
+  end
+
+  def anti_csv
+    respond_to do |format|
+      format.html { redirect_to root_path }
+      format.csv { send_data @winrate.as_csv(:anti), filename: "#{@winrate._id}-anti.csv" }
+    end
   end
 
 

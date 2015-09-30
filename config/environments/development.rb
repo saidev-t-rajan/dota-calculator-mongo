@@ -35,7 +35,4 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
-
-  Mongoid.logger = Logger.new($stdout)
-  Moped.logger = Logger.new($stdout)
 end

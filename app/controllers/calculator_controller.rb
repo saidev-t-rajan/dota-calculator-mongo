@@ -36,10 +36,13 @@ class CalculatorController < ApplicationController
 
   def calculate
     draft = Draft.new(params[:draft])
-    session[:radiant_win_percentage] = draft.radiant_win_percentage.round(2)
-    session[:dire_win_percentage] = draft.dire_win_percentage.round(2)
 
-    session[:radiant]
+    if draft.errors
+      flash[:danger] = draft.errors
+    else
+      session[:radiant_win_percentage] = draft.radiant_win_percentage.round(2)
+      session[:dire_win_percentage] = draft.dire_win_percentage.round(2)
+    end
 
     session[:winrate] = params[:draft][:winrate]
     session[:radiant_1] = params[:draft][:radiant_1]

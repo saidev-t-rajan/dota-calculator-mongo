@@ -1,6 +1,6 @@
 class Draft
 
-  attr_reader :radiant_win_percentage, :dire_win_percentage
+  attr_reader :radiant_win_percentage, :dire_win_percentage, :errors
 
   K = 0.551247203300392
 
@@ -21,6 +21,13 @@ class Draft
 
     @radiant = [radiant_1, radiant_2, radiant_3, radiant_4, radiant_5].compact
     @dire = [dire_1, dire_2, dire_3, dire_4, dire_5].compact
+    all_heros = @radiant + @dire
+
+    @errors = if all_heros == all_heros.uniq
+                nil
+              else
+                "Can't have two or more of the same hero, fool!"
+              end
 
     calculate
   end

@@ -7,7 +7,7 @@ class Winrate
 
   embeds_many :heros
 
-  field :_id,     type: String, default: ->{ get_id }
+  field :_id,     type: String, overwrite: true, default: ->{ get_id }
   field :type,    type: String
   field :time,    type: String
   field :skill,   type: String

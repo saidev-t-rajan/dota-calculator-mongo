@@ -8,7 +8,7 @@ class Hero
   embedded_in :winrate
   embeds_many :with_heros
 
-  field :_id,         type: Symbol
+  field :_id,         type: Symbol, overwrite: true
   field :name,        type: String
   field :name_ch,     type: String
   field :name_url,    type: String

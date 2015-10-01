@@ -17,8 +17,6 @@ class Hero
   field :combo_u_at,  type: ActiveSupport::TimeWithZone
   field :anti_u_at,   type: ActiveSupport::TimeWithZone
 
-  index(name: 1)
-
 
   DOTAMAXURL = "http://dotamax.com/hero/detail"
 

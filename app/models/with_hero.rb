@@ -10,8 +10,6 @@ class WithHero
   # Cached
   field :name_ch,   type: String
 
-  index(name_ch: 1)
-
 
   def h
     hero.winrate.heros.find(_id)

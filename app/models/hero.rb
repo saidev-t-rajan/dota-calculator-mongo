@@ -28,13 +28,6 @@ class Hero
     with_heros.where(_id: hero._id).first.try(:anti)
   end
 
-  def build_from_web(arg, details)
-    details.each do |name_ch, rate|
-      with_heros.find_by(name_ch: name_ch).send("#{arg}=", rate.to_d)
-    end
-    send("#{arg}_u_at=", Time.now)
-  end
-
   def set_urls
     self.url_combo  = "#{DOTAMAXURL}/match_up_comb/#{name_url}#{winrate.filter}"
     self.url_anti   = "#{DOTAMAXURL}/match_up_anti/#{name_url}#{winrate.filter}"

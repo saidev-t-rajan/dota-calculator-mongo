@@ -17,9 +17,9 @@ class Scrapers
   end
 
   def scrape_and_build!
-    @winrate.heros.each do |hero| 
-      @que << { name: hero._id, arg: 'combo', url: hero.url_combo }
-      @que << { name: hero._id, arg: 'anti', url: hero.url_anti }
+    @winrate.heros.each do |hero|
+      @que << [hero, 'combo']
+      @que << [hero, 'anti']
     end
 
     rtry = @retry
@@ -28,14 +28,17 @@ class Scrapers
       threads = @pool.times.map do
                   Thread.new do
                     until @que.empty?
-                      hero = @que.shift
-                      details = get_details_from_web hero[:url]
+                      hero, arg = @que.shift
+                      details = get_details_from_web(hero.send("url_#{arg}"))
                       if details
                         @semaphore.synchronize do
-                          @winrate.heros.find(hero[:name]).build_from_web hero[:arg], details
+                          details.each do |name_ch, rate|
+                            hero.with_heros.find_by(name_ch: name_ch).send("#{arg}=", rate.to_d)
+                          end
+                          hero.send("#{arg}_u_at=", Time.now)
                         end
                       else
-                        @failed_scrapes << hero
+                        @failed_scrapes << [hero, arg]
                       end
                     end
                   end
@@ -61,7 +64,7 @@ class Scrapers
 
     Nokogiri::HTML(open(url)).css("//table.table//tbody//tr").map do |row|
       name_ch = row.css("td")[0].text
-      raise "Chinese name #{name_ch} does not exist" unless @semaphore.synchronize{ @chinese_names.include? name_ch }
+      raise "Chinese name #{name_ch} does not exist" unless @chinese_names.include? name_ch
 
       [name_ch, row.css("td")[2].text]
     end

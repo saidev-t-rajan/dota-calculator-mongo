@@ -2,7 +2,7 @@ class Draft
 
   attr_reader :radiant_win_percentage, :dire_win_percentage, :errors
 
-  K = 0.551247203300392
+  K = 5.375113384
 
   def initialize(params={})
     winrate = Winrate.find(params[:winrate])
@@ -53,7 +53,7 @@ class Draft
     radiant_winrate = radiant_winrates.avg(5) / 100
     dire_winrate = dire_winrates.avg(5) / 100
 
-    @radiant_win_percentage = (((-radiant_winrate**K/Math.log(radiant_winrate))/(-radiant_winrate**K/Math.log(radiant_winrate)-dire_winrate**K/Math.log(dire_winrate))-0.5)*5.3 + 0.5) * 100
+    @radiant_win_percentage = ((-radiant_winrate**K/Math.log(radiant_winrate))/(-radiant_winrate**K/Math.log(radiant_winrate)-dire_winrate**K/Math.log(dire_winrate))) * 100
 
     @dire_win_percentage = 100 - radiant_win_percentage
   end
